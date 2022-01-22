@@ -7,9 +7,71 @@ use v5.10.0;
 use strict;
 use warnings;
 
+use Getopt::Long;
+use Pod::Usage;
+my %opt_for;
+GetOptions(
+    \%opt_for,
+    "verbose=i",     # show verbose information about what's happening
+    "primary=s",     # name of primary working git branch
+    "target=s",      # name of target (non-primary) branch to check
+    "severity=s",    # Perl::Critic severity (default: 5, gentle)
+    "help|?",        # show brief help
+    "man",           # show full help
+) || pod2usage( -verbose => 0 );
+
+# munge options
+$opt_for{verbose}  ||= 0;
+$opt_for{severity} ||= 5;
+
+pod2usage( -verbose => 1 ) if ( $opt_for{help} );
+pod2usage( -verbose => 2 ) if ( $opt_for{man} );
+
 our $VERSION = '0.01';
 use Git::Critic;
-my $critic = Git::Critic->new( primary_branch => 'main', verbose => 1 );
+my $critic = Git::Critic->new(
+    ( $opt_for{primary} ? ( primary_branch => $opt_for{primary} ) : () ),
+    ( $opt_for{target}  ? ( current_branch => $opt_for{target} )  : () ),
+    verbose  => $opt_for{verbose},
+    severity => $opt_for{severity},
+);
 say foreach $critic->run;
 
 # vim: filetype=perl
+
+__END__
+
+=head1 SYNOPSIS
+
+    git-perl-critic --primary main
+
+=head1 OPTIONS
+
+    Option         Argument type   Description
+    --help,-h,-?                   Show brief help
+    --man                          Show full help
+    --primary,-p   Str             Name of primary git branch (for example: 'main', 'master', or 'dev')
+    --target,-p    Str             Name of git branch to check (default is current branch)
+    --severity,s   Str|Int         Perl::Critic severity level
+
+=head1 DESCRIPTION
+
+A command line interface to C<Git::Critic>.
+
+=head1 DEBUGGING
+
+If you do not specify a primary branch, you may get the following error:
+
+    fatal: ref refs/remotes/origin/HEAD is not a symbolic ref
+
+If you do, you can fix that by passing in the name of the primary branch:a
+
+    git-perl-critic --primary main
+    # or
+    git-perl-critic --p main
+
+Alternatively, you can set this with the following command:
+
+    git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/$branch_name
+
+Where C<$branch_name> is the name of your primary branch.
