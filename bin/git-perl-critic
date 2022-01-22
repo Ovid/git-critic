@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 # ABSTRACT: Command-line interface for Perl Git::Critic module
+# PODNAME: git-perl-critic
 
 use v5.10.0;
 use strict;
