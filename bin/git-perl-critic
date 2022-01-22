@@ -128,7 +128,8 @@ If you're on an entirely unrelated branch, you can specify the branch you want
 to use as your primary branch and the branch you want to critique:
 
     git-perl-critic my-development-branch --critique my-spike-branch # same thing
-/bin/bash: :17: command not found
+    git-perl-critic --against my-development-branch --critique my-spike-branch # same thing
+
 =head2 Option Explanations
 
 =head3 C<--critique $branch_name>

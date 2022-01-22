@@ -30,6 +30,12 @@ and run:
 git-perl-critic main
 ```
 
+If you prefer a more "fluent" interface:
+
+```
+git-perl-critic --against main
+```
+
 If your git repository is currently not checked out into the branch you wish to diff,
 pass the `--critique` option:
 
@@ -43,7 +49,13 @@ But maybe you have created a branch off of `my-development-branch`:
 git checkout my-development-branch
 git checkout -b my-spike-branch
 # hack, hack, hack
-git-perl-critique my-spike-branch
+git-perl-critique my-development-branch
+```
+
+To be fully verbose:
+
+```perl
+git-perl-critic --critique my-spike-branch --against my-development-branch
 ```
 
 If you're on an entirely unrelated branch, you can specify the branch you want
@@ -51,6 +63,7 @@ to use as your primary branch and the branch you want to critique:
 
 ```perl
 git-perl-critic my-development-branch --critique my-spike-branch # same thing
+git-perl-critic --against my-development-branch --critique my-spike-branch # same thing
 ```
 
 ## Option Explanations
@@ -93,7 +106,8 @@ Options:
 
 ```
 Option           Argument type   Description
---critique,-c    Str             Name of git branch to critique (default is current branch)
+--against,a      Str             Gir branch to critique against
+--critique,-c    Str             Git branch to critique (default is current branch)
 --severity,s     Str|Int         Perl::Critic severity level
 --max_file_size  Bytes           Maximum file size in bytes to check
 ```
