@@ -109,7 +109,7 @@ If you prefer a more "fluent" interface:
     git-perl-critic --against main
 
 If your git repository is currently not checked out into the branch you wish to diff,
-pass the C<--critique> option:
+pass the C<--critique> option to specify the name of the branch you wish to critique.
 
     git-perl-critic main --critique my-development-branch
 

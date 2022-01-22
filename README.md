@@ -37,7 +37,7 @@ git-perl-critic --against main
 ```
 
 If your git repository is currently not checked out into the branch you wish to diff,
-pass the `--critique` option:
+pass the `--critique` option to specify the name of the branch you wish to critique.
 
 ```perl
 git-perl-critic main --critique my-development-branch
