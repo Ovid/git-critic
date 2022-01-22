@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
 
+# ABSTRACT: Command-line interface for Perl Git::Critic module
+
 use v5.10.0;
 use strict;
 use warnings;
 
+our $VERSION = '0.01';
 use Git::Critic;
 my $critic = Git::Critic->new( primary_branch => 'main', verbose => 1 );
 say foreach $critic->run;
