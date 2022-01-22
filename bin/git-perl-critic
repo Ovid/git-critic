@@ -77,7 +77,7 @@ __END__
 Options:
 
     Option           Argument type   Description
-    --against,a      Str             Gir branch to critique against
+    --against,a      Str             Git branch to critique against
     --critique,-c    Str             Git branch to critique (default is current branch)
     --severity,s     Str|Int         Perl::Critic severity level
     --max_file_size  Bytes           Maximum file size in bytes to check
