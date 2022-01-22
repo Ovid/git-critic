@@ -80,7 +80,7 @@ Debugging options:
 
     --help,-h,-?                   Show brief help
     --man                          Show full help
-    --verbose                
+    --verbose                      Show internal Git::Critic commands
 
 =head1 DESCRIPTION
 
