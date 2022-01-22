@@ -11,8 +11,7 @@ use Carp;
 use File::Basename 'basename';
 use List::Util qw(uniq);
 use Moo;
-use MooX::HandlesVia;
-use Types::Standard qw( ArrayRef Int Str);
+use Types::Standard qw( ArrayRef Bool Int Str);
 
 our $VERSION = '0.1';
 
@@ -21,10 +20,9 @@ our $VERSION = '0.1';
 #
 
 has primary_branch => (
-    is      => 'ro',
-    isa     => Str,
-    lazy    => 1,
-    builder => '_build_primary_branch',
+    is       => 'ro',
+    isa      => Str,
+    required => 1,
 );
 
 has current_branch => (
@@ -37,13 +35,19 @@ has current_branch => (
 has max_file_size => (
     is      => 'ro',
     isa     => Int,
-    default => 20_000,
+    default => 0,
 );
 
 has severity => (
     is      => 'ro',
     isa     => Int | Str,
     default => 5,
+);
+
+has verbose => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
 );
 
 # this is only for tests
@@ -57,29 +61,6 @@ has _run_test_queue => (
 #
 # Builders
 #
-
-sub _build_primary_branch {
-    my $self = shift;
-    my $primary_branch =
-      $self->_run( 'git', 'symbolic-ref', 'refs/remotes/origin/HEAD' );
-
-    if ( !$primary_branch ) {
-        croak(<<'END');
-Could not determine target branch via "git symbolic-ref refs/remotes/origin/HEAD"
-You can set your target branch with:
-
-    git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/\$branch_name
-
-Where $branch_name is the name of the primary branch you develop from ('main, 'master', etc.)
-
-Alternatively, you can pass the primary branch name in the constructor:
-
-    my $critic = Git::Critic->new( primary_branch => 'main' );
-
-END
-    }
-    return $primary_branch;
-}
 
 sub _build_current_branch {
     my $self = shift;
@@ -120,39 +101,77 @@ sub _run {
         return $self->_get_next_run_queue_response;
     }
 
+    if ( $self->verbose ) {
+        say STDERR "Running command: @command";
+    }
+
     # XXX yeah, this needs to be more robust
-    return capture_stdout { system(@command) };
+    chomp( my $result = capture_stdout { system(@command) } );
+    return $result;
 }
 
 # same as _run, but don't let it die
 sub _run_without_die {
     my ( $self, @command ) = @_;
-    return capture_stdout {
-        no autodie;
-        system(@command);
-    };
+    if ( $self->verbose ) {
+        say STDERR "Running command: @command";
+    }
+    chomp(
+        my $result = capture_stdout {
+            no autodie;
+            system(@command);
+        }
+    );
+    return $result;
 }
 
-# get
+# get Perl files which have been changed in the current branch
 sub _get_modified_perl_files {
     my $self           = shift;
     my $primary_branch = $self->primary_branch;
+    my $current_branch = $self->current_branch;
     my @files          = uniq sort grep { /\S/ && $self->_is_perl($_) }
-      split /\n/ =>
-      $self->_run( 'git', 'diff', '--name-only', "$primary_branch..." );
+      split /\n/ => $self->_run( 'git', 'diff', '--name-only',
+        "$primary_branch..$current_branch" );
     return @files;
 }
 
+# get the diff of the current file
 sub _get_diff {
     my ( $self, $file ) = @_;
     my $primary_branch = $self->primary_branch;
+    my $current_branch = $self->current_branch;
     my @diff =
-      split /\n/ => $self->_run( 'git', 'diff', "$primary_branch...", $file );
+      split /\n/ =>
+      $self->_run( 'git', 'diff', "$primary_branch..$current_branch", $file );
     return @diff;
 }
 
+# remove undefined arguments. This makes a command line
+# script easier to follow
+around BUILDARGS => sub {
+    my ( $orig, $class, @args ) = @_;
+
+    my $arg_for = $class->$orig(@args);
+    foreach my $arg ( keys %$arg_for ) {
+        if ( not defined $arg_for->{$arg} ) {
+            delete $arg_for->{$arg};
+        }
+    }
+    return $arg_for;
+};
+
 sub run {
     my $self = shift;
+
+    my $primary_branch = $self->primary_branch;
+    my $current_branch = $self->current_branch;
+    if ( $primary_branch eq $current_branch ) {
+
+        # in the future, we might want to allow you to check the primary
+        # branch X commits back
+        return;
+    }
 
     # We walking through every file you've changed and parse the diff to
     # figure out the start and end of every change you've made. Any perlcritic
@@ -163,9 +182,14 @@ sub run {
     my @failures;
   FILE: foreach my $file (@files) {
         next FILE unless -e $file;    # it was deleted
-        next FILE
-          unless -s _ < $self->max_file_size;    # large files are very painful
-        my $critique = $self->_run_without_die( 'perlcritic', $file );
+        if ( $self->max_file_size ) {
+            next FILE
+              unless -s _ <= $self->max_file_size;    # large files are very slow
+        }
+        my $severity = $self->severity;
+        my $critique =
+          $self->_run_without_die( 'perlcritic', "--severity=$severity",
+            $file );
         next FILE unless $critique; # should never happen unless perlcritic dies
         my @critiques = split /\n/, $critique;
 
@@ -198,14 +222,22 @@ sub run {
     return @failures;
 }
 
+# a heuristic to determine if the file in question is Perl. We might allow
+# a client to override this in the future
 sub _is_perl {
     my ( $self, $file ) = @_;
     return unless -e $file;    # sometimes we get non-existent files
     return 1 if $file =~ /\.(?:p[ml]|t)$/;
+
+    # if we got to here, let's check to see if "perl" is in a shebang
     open my $fh, '<', $file;
     my $first_line = <$fh>;
     close $fh;
-    return $first_line =~ /^#!.*\bperl\b/;    # yeah, it's a heuristic
+    if ( $first_line =~ /^#!.*\bperl\b/ ) {
+        say STDERR "Found changed Perl file: $file" if $self->verbose;
+        return $file;
+    }
+    return;
 }
 
 # vim: filetype=perl
@@ -224,5 +256,74 @@ __END__
 
 Running L<Perl::Critic|https://metacpan.org/pod/Perl::Critic> on legacy code
 is often useless. You're flooded with tons of critiques, even if you use the
-gentlest critique level. This module lets you only report Perl::Critic errors
-on lines you've changed in your current branch.
+gentlest critique level. This module lets you only report C<Perl::Critic>
+errors on lines you've changed in your current branch.
+
+=head1 COMMAND LINE
+
+We include a C<git-perl-critic> command line tool to make this easier. You
+probably want to check those docs instead.
+
+=head1 CONSTRUCTOR ARGUMENTS
+
+=head2 C<primary_branch>
+
+This is the only required argument.
+
+This is the name of the branch you will diff against. Usually it's C<main>,
+C<master>, C<development>, and so on, but you may specify another branch name
+if you prefer.
+
+=head2 C<current_branch>
+
+Optional.
+
+This is the branch you wish to critique. Defaults to the currently checked out branch.
+
+=head2 C<max_file_size>
+
+Optional.
+
+Positive integer representing the max file size of file you wish to critique.
+C<Perl::Critic> can be slow on large files, so this can speed things up by
+passing a value, but at the cost of ignoring some C<Perl::Critic> failures.
+
+=head2 C<severity>
+
+Optional.
+
+This is the C<Perl::Critic> severity level. You may pass a string or an integer. If omitted, the
+default severity level is "gentle" (5).
+
+    SEVERITY NAME   ...is equivalent to...   SEVERITY NUMBER
+    --------------------------------------------------------
+    -severity => 'gentle'                     -severity => 5
+    -severity => 'stern'                      -severity => 4
+    -severity => 'harsh'                      -severity => 3
+    -severity => 'cruel'                      -severity => 2
+    -severity => 'brutal'                     -severity => 1
+
+=head2 C<verbose>
+
+Optional.
+
+If passed a true value, will print messages to C<STDERR> explaining various things the
+module is doing. Useful for debugging.
+
+=head1 METHODS
+
+=head2 C<run>
+
+    my $critic = Git::Critic->new(
+        primary_branch => 'main' 
+        current_branch => 'my-development-branch',
+        severity       => 'harsh',
+        max_file_size  => 20_000,
+    );
+    my @critiques = $critic->run;
+    say foreach @critiques;
+
+Returns a list of all C<Perl::Critic> failures in changed lines in the current branch.
+
+If the current branch and the primary branch are the same, returns nothing.
+This may change in the future.
