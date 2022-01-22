@@ -1,6 +1,7 @@
 Revision history for Git-Critic
 
 {{$NEXT}}
+          - Add sponsor information
 
 0.1       2022-01-22 15:29:56 CET
           - Only critique lines changed in current branch
