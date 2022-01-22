@@ -11,7 +11,6 @@ use Carp;
 use File::Basename 'basename';
 use List::Util qw(uniq);
 use Moo;
-use MooX::HandlesVia;
 use Types::Standard qw( ArrayRef Int Str);
 
 our $VERSION = '0.1';
