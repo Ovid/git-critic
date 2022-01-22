@@ -70,7 +70,7 @@ git-perl-critic --against my-development-branch --critique my-spike-branch # sam
 
 All options are optional.
 
-## `--against $branch_name`
+### `--against $branch_name`
 
 The name of the branch you will critique against. If you don't pass this argument, you
 must pass the branch name directly. The following two are equivalent:
@@ -84,7 +84,7 @@ git-perl-critic main
 
 This must be the name of the branch you wish to critique.
 
-## `--severity $number_or_name`
+### `--severity $number_or_name`
 
 This is the `Perl::Critic` severity level. You may pass a string or an integer. If omitted, the
 default severity level is "gentle" (5).
@@ -99,16 +99,16 @@ SEVERITY NAME   ...is equivalent to...   SEVERITY NUMBER
 -severity => 'brutal'                     -severity => 1
 ```
 
-## `--max_file_size $bytes`
+### `--max_file_size $bytes`
 
 `Perl::Critic` can be very, very slow on large files. Pass a positive integer
 to this option to skip files over a certain number of bytes.
 
-## `--verbose`
+### `--verbose`
 
 This is a debugging tool to show some useful information while running this script.
 
-## `--man,--help`
+### `--man,--help`
 
 Various ways of displaying this documentation.
 
