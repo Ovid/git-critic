@@ -73,7 +73,7 @@ sub _build_primary_branch {
 Could not determine target branch via "git symbolic-ref refs/remotes/origin/HEAD"
 You can set your target branch with:
 
-    git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/\$branch_name
+    git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/$branch_name
 
 Where $branch_name is the name of the primary branch you develop from ('main, 'master', etc.)
 
@@ -128,6 +128,7 @@ sub _run {
     if ( $self->verbose ) {
         say STDERR "Running command: @command";
     }
+
     # XXX yeah, this needs to be more robust
     return capture_stdout { system(@command) };
 }
@@ -175,8 +176,11 @@ sub run {
   FILE: foreach my $file (@files) {
         next FILE unless -e $file;    # it was deleted
         next FILE
-          unless -s _ < $self->max_file_size;    # large files are very painful
-        my $critique = $self->_run_without_die( 'perlcritic', $file );
+          unless -s _ < $self->max_file_size;    # large files are very slow
+        my $severity = $self->severity;
+        my $critique =
+          $self->_run_without_die( 'perlcritic', "--severity=$severity",
+            $file );
         next FILE unless $critique; # should never happen unless perlcritic dies
         my @critiques = split /\n/, $critique;
 
