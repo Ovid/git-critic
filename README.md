@@ -4,7 +4,7 @@ git-perl-critic - Command-line interface for Perl Git::Critic module
 
 # VERSION
 
-version 0.1
+version 0.2
 
 # SYNOPSIS
 
@@ -131,6 +131,12 @@ Debugging options:
 --man                          Show full help
 --verbose                      Show internal Git::Critic commands
 ```
+
+# SPONSOR
+
+This work is sponsored by [All Around the World](https://allaroundtheworld.fr).
+Contact them if you need expert help in software development. We work with many
+different languages. Not just Perl.
 
 # AUTHOR
 

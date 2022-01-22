@@ -171,3 +171,9 @@ This is a debugging tool to show some useful information while running this scri
 =head3 C<--man,--help>
 
 Various ways of displaying this documentation.
+
+=head1 SPONSOR
+
+This work is sponsored by L<All Around the World|https://allaroundtheworld.fr>.
+Contact them if you need expert help in software development. We work with many
+different languages. Not just Perl.
