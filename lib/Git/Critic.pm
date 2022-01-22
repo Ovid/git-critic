@@ -46,6 +46,12 @@ has severity => (
     default => 5,
 );
 
+has verbose => (
+    is      => 'ro',
+    isa     => Int,
+    default => 0,
+);
+
 # this is only for tests
 has _run_test_queue => (
     is       => 'ro',
@@ -120,6 +126,9 @@ sub _run {
         return $self->_get_next_run_queue_response;
     }
 
+    if ( $self->verbose ) {
+        say STDERR "Running command: @command";
+    }
     # XXX yeah, this needs to be more robust
     return capture_stdout { system(@command) };
 }
@@ -127,6 +136,9 @@ sub _run {
 # same as _run, but don't let it die
 sub _run_without_die {
     my ( $self, @command ) = @_;
+    if ( $self->verbose ) {
+        say STDERR "Running command: @command";
+    }
     return capture_stdout {
         no autodie;
         system(@command);
