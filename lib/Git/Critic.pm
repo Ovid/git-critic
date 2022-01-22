@@ -20,10 +20,9 @@ our $VERSION = '0.1';
 #
 
 has primary_branch => (
-    is      => 'ro',
-    isa     => Str,
-    lazy    => 1,
-    builder => '_build_primary_branch',
+    is       => 'ro',
+    isa      => Str,
+    required => 1,
 );
 
 has current_branch => (
@@ -62,29 +61,6 @@ has _run_test_queue => (
 #
 # Builders
 #
-
-sub _build_primary_branch {
-    my $self = shift;
-    my $primary_branch =
-      $self->_run( 'git', 'symbolic-ref', 'refs/remotes/origin/HEAD' );
-
-    if ( !$primary_branch ) {
-        croak(<<'END');
-Could not determine target branch via "git symbolic-ref refs/remotes/origin/HEAD"
-You can set your target branch with:
-
-    git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/$branch_name
-
-Where $branch_name is the name of the primary branch you develop from ('main, 'master', etc.)
-
-Alternatively, you can pass the primary branch name in the constructor:
-
-    my $critic = Git::Critic->new( primary_branch => 'main' );
-
-END
-    }
-    return $primary_branch;
-}
 
 sub _build_current_branch {
     my $self = shift;
