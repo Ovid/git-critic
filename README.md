@@ -4,7 +4,7 @@ git-perl-critic - Command-line interface for Perl Git::Critic module
 
 # VERSION
 
-version 0.2
+version 0.3
 
 # SYNOPSIS
 
@@ -131,6 +131,10 @@ Debugging options:
 --man                          Show full help
 --verbose                      Show internal Git::Critic commands
 ```
+
+# SEE ALSO
+
+[https://metacpan.org/pod/Test::Perl::Critic::Progressive](https://metacpan.org/pod/Test::Perl::Critic::Progressive)
 
 # SPONSOR
 

@@ -172,6 +172,10 @@ This is a debugging tool to show some useful information while running this scri
 
 Various ways of displaying this documentation.
 
+=head1 SEE ALSO
+
+L<https://metacpan.org/pod/Test::Perl::Critic::Progressive>
+
 =head1 SPONSOR
 
 This work is sponsored by L<All Around the World|https://allaroundtheworld.fr>.
