@@ -1,0 +1,7 @@
+severity = 5
+
+[TestingAndDebugging::RequireUseStrict]
+equivalent_modules = Test::Most
+
+[TestingAndDebugging::RequireUseWarnings]
+equivalent_modules = Test::Most

@@ -1,0 +1,4 @@
+Revision history for Git-Critic
+
+{{$NEXT}}
+          - Only critique lines changed in current branch
