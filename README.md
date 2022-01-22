@@ -16,6 +16,11 @@ say foreach @critiques;
 
 # DESCRIPTION
 
+Running [Perl::Critic](https://metacpan.org/pod/Perl::Critic) on legacy code
+is often useless. You're flooded with tons of critiques, even if you use the
+gentlest critique level. This module lets you only report Perl::Critic errors
+on lines you've changed in your current branch.
+
 # AUTHOR
 
 Curtis "Ovid" Poe <curtis.poe@gmail.com>
