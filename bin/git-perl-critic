@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+
+use v5.10.0;
+use strict;
+use warnings;
+
+use Git::Critic;
+my $critic = Git::Critic->new( primary_branch => 'main', verbose => 1 );
+say foreach $critic->run;
+
+# vim: filetype=perl
