@@ -9,6 +9,7 @@ use autodie ":all";
 use Capture::Tiny 'capture_stdout';
 use Carp;
 use File::Basename 'basename';
+use File::Temp 'tempfile';
 use List::Util qw(uniq);
 use Moo;
 use Types::Standard qw( ArrayRef Bool Int Str);
@@ -107,7 +108,6 @@ sub _run {
 
     # XXX yeah, this needs to be more robust
     chomp( my $result = capture_stdout { system(@command) } );
-    warn $result;
     return $result;
 }
 
@@ -178,19 +178,25 @@ sub run {
     # figure out the start and end of every change you've made. Any perlcritic
     # failures which are *not* on those lines are ignored
     my @files = $self->_get_modified_perl_files;
-    my $found;
     my %reported;
     my @failures;
   FILE: foreach my $file (@files) {
-        next FILE unless -e $file;    # it was deleted
+        my $file_text = $self->_run( 'git', 'show', "${current_target}:$file" )
+          or next FILE;
         if ( $self->max_file_size ) {
+            # we want the lenght in bytes, not characters
+            use bytes;
             next FILE
-              unless -s _ <= $self->max_file_size;    # large files are very slow
+              unless length($file_text) <= $self->max_file_size;    # large files are very slow
         }
+
+        my ($fh, $filename) = tempfile();
+        print $fh $file_text;
+        close $fh;
         my $severity = $self->severity;
         my $critique =
           $self->_run_without_die( 'perlcritic', "--severity=$severity",
-            $file );
+            $filename );
         next FILE unless $critique; # should never happen unless perlcritic dies
         my @critiques = split /\n/, $critique;
 
@@ -205,20 +211,25 @@ sub run {
               ? [ $+{start}, $+{start} + $+{lines} ]
               : ()
         } $self->_get_diff($file);
+        my $max_line_number = $chunks[-1][-1];
       CRITIQUE: foreach my $this_critique (@critiques) {
             next CRITIQUE if $this_critique =~ / source OK$/;
             $this_critique =~ /\bline\s+(?<line_number>\d+)/;
             unless ( defined $+{line_number} ) {
-                warn "Could not find line number in critique $critique";
+                warn "Could not find line number in critique $this_critique";
                 next;
             }
+
+            # no need to keep processing
+            last CRITIQUE if $+{line_number} > $max_line_number;
+
             foreach my $chunk (@chunks) {
                 my ( $min, $max ) = @$chunk;
                 if ( $+{line_number} >= $min && $+{line_number} <= $max ) {
-                    unless ($reported{$critique}) {
+                    unless ($reported{$this_critique}) {
                         push @failures => "$file: $this_critique"
                     }
-                    $reported{$critique}++;
+                    $reported{$this_critique}++;
                     next CRITIQUE;
                 }
             }

@@ -2,6 +2,9 @@ Revision history for Git-Critic
 
 {{$NEXT}}
 
+          - Bugfix: use `git show $target:$file` to get file contents to write to a
+            temp file.
+
 0.3       2022-01-23 11:27:53 CET
 
           - Rename primary_branch and current_branch to primary_target and
