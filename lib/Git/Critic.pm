@@ -13,7 +13,7 @@ use List::Util qw(uniq);
 use Moo;
 use Types::Standard qw( ArrayRef Bool Int Str);
 
-our $VERSION = '0.3';
+our $VERSION = '0.4';
 
 #
 # Moo attributes
