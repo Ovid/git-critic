@@ -19,17 +19,17 @@ our $VERSION = '0.3';
 # Moo attributes
 #
 
-has primary_branch => (
+has primary_target => (
     is       => 'ro',
     isa      => Str,
     required => 1,
 );
 
-has current_branch => (
+has current_target => (
     is      => 'ro',
     isa     => Str,
     lazy    => 1,
-    builder => '_build_current_branch',
+    builder => '_build_current_target',
 );
 
 has max_file_size => (
@@ -62,7 +62,7 @@ has _run_test_queue => (
 # Builders
 #
 
-sub _build_current_branch {
+sub _build_current_target {
     my $self = shift;
     return $self->_run( 'git', 'rev-parse', '--abbrev-ref', 'HEAD' );
 }
@@ -129,22 +129,22 @@ sub _run_without_die {
 # get Perl files which have been changed in the current branch
 sub _get_modified_perl_files {
     my $self           = shift;
-    my $primary_branch = $self->primary_branch;
-    my $current_branch = $self->current_branch;
+    my $primary_target = $self->primary_target;
+    my $current_target = $self->current_target;
     my @files          = uniq sort grep { /\S/ && $self->_is_perl($_) }
       split /\n/ => $self->_run( 'git', 'diff', '--name-only',
-        "$primary_branch..$current_branch" );
+        "$primary_target..$current_target" );
     return @files;
 }
 
 # get the diff of the current file
 sub _get_diff {
     my ( $self, $file ) = @_;
-    my $primary_branch = $self->primary_branch;
-    my $current_branch = $self->current_branch;
+    my $primary_target = $self->primary_target;
+    my $current_target = $self->current_target;
     my @diff =
       split /\n/ =>
-      $self->_run( 'git', 'diff', "$primary_branch..$current_branch", $file );
+      $self->_run( 'git', 'diff', "$primary_target..$current_target", $file );
     return @diff;
 }
 
@@ -165,9 +165,9 @@ around BUILDARGS => sub {
 sub run {
     my $self = shift;
 
-    my $primary_branch = $self->primary_branch;
-    my $current_branch = $self->current_branch;
-    if ( $primary_branch eq $current_branch ) {
+    my $primary_target = $self->primary_target;
+    my $current_target = $self->current_target;
+    if ( $primary_target eq $current_target ) {
 
         # in the future, we might want to allow you to check the primary
         # branch X commits back
@@ -253,7 +253,7 @@ __END__
 
 =head1 SYNOPSIS
 
-    my $critic = Git::Critic->new( primary_branch => 'main' );
+    my $critic = Git::Critic->new( primary_target => 'main' );
     my @critiques = $critic->run;
     say foreach @critiques;
 
@@ -271,19 +271,20 @@ probably want to check those docs instead.
 
 =head1 CONSTRUCTOR ARGUMENTS
 
-=head2 C<primary_branch>
+=head2 C<primary_target>
 
 This is the only required argument.
 
-This is the name of the branch you will diff against. Usually it's C<main>,
+This is the branch or commit SHA-1 you will diff against. Usually it's C<main>,
 C<master>, C<development>, and so on, but you may specify another branch name
 if you prefer.
 
-=head2 C<current_branch>
+=head2 C<current_target>
 
 Optional.
 
-This is the branch you wish to critique. Defaults to the currently checked out branch.
+This is the branch or commit SHA-1 you wish to critique. Defaults to the
+currently checked out branch.
 
 =head2 C<max_file_size>
 
@@ -320,8 +321,8 @@ module is doing. Useful for debugging.
 =head2 C<run>
 
     my $critic = Git::Critic->new(
-        primary_branch => 'main' 
-        current_branch => 'my-development-branch',
+        primary_target => 'main' 
+        current_target => 'my-development-branch',
         severity       => 'harsh',
         max_file_size  => 20_000,
     );

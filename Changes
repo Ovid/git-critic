@@ -2,6 +2,7 @@ Revision history for Git-Critic
 
 {{$NEXT}}
 
+          - Document that you can target particular commits using the SHA-1
           - Bugfix: push corrent critique onto reporting list, not entire
             critique
           - Add mention for Test::Perl::Critic::Progressive

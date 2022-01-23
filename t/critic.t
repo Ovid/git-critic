@@ -9,13 +9,13 @@ use Git::Critic;
 # for now.
 #
 
-ok my $critic = Git::Critic->new( primary_branch => 'main' ),
+ok my $critic = Git::Critic->new( primary_target => 'main' ),
   'We should be able to create a git critic object';
 
-is $critic->primary_branch, 'main', 'We can set the name of our primary branch';
+is $critic->primary_target, 'main', 'We can set the name of our primary branch';
 
 $critic->_add_to_run_queue('current');
-is $critic->current_branch, 'current', '... and our current branch';
+is $critic->current_target, 'current', '... and our current branch';
 
 $critic->_add_to_run_queue(<<'END');
 lib/Git/Critic.pm
@@ -49,17 +49,17 @@ index d77ff16..70a86b3 100644
 @@ -21,10 +20,9 @@ our $VERSION = '0.1';
  #
  
- has primary_branch => (
+ has primary_target => (
 -    is      => 'ro',
 -    isa     => Str,
 -    lazy    => 1,
--    builder => '_build_primary_branch',
+-    builder => '_build_primary_target',
 +    is       => 'ro',
 +    isa      => Str,
 +    required => 1,
  );
  
- has current_branch => (
+ has current_target => (
 @@ -46,6 +44,12 @@ has severity => (
      default => 5,
  );
@@ -77,12 +77,12 @@ index d77ff16..70a86b3 100644
  # Builders
  #
  
--sub _build_primary_branch {
+-sub _build_primary_target {
 -    my $self = shift;
--    my $primary_branch =
+-    my $primary_target =
 -      $self->_run( 'git', 'symbolic-ref', 'refs/remotes/origin/HEAD' );
 -
--    if ( !$primary_branch ) {
+-    if ( !$primary_target ) {
 -        croak(<<'END');
 -Could not determine target branch via "git symbolic-ref refs/remotes/origin/HEAD"
 -You can set your target branch with:
@@ -93,14 +93,14 @@ index d77ff16..70a86b3 100644
 -
 -Alternatively, you can pass the primary branch name in the constructor:
 -
--    my $critic = Git::Critic->new( primary_branch => 'main' );
+-    my $critic = Git::Critic->new( primary_target => 'main' );
 -
 -END
 -    }
--    return $primary_branch;
+-    return $primary_target;
 -}
 -
- sub _build_current_branch {
+ sub _build_current_target {
      my $self = shift;
      return $self->_run( 'git', 'rev-parse', '--abbrev-ref', 'HEAD' );
 @@ -120,6 +101,10 @@ sub _run {
