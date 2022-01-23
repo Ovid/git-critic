@@ -58,6 +58,18 @@ To be fully verbose:
 git-perl-critic --critique my-spike-branch --against my-development-branch
 ```
 
+If you prefer, you can target particular commits:
+
+```
+git-perl-critic --critique 747ba0e --against 15616b5
+```
+
+Or mix them:
+
+```
+git-perl-critic --critique 747ba0e --against main
+```
+
 If you're on an entirely unrelated branch, you can specify the branch you want
 to use as your primary branch and the branch you want to critique:
 
