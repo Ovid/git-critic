@@ -107,6 +107,7 @@ sub _run {
 
     # XXX yeah, this needs to be more robust
     chomp( my $result = capture_stdout { system(@command) } );
+    warn $result;
     return $result;
 }
 
@@ -193,7 +194,9 @@ sub run {
         next FILE unless $critique; # should never happen unless perlcritic dies
         my @critiques = split /\n/, $critique;
 
-        # @@ -3,8 +3,9 @@        @@ -3,8 +3,9 @@
+        # unified diff format
+        # @@ -3,8 +3,9 @@ 
+        # @@ from-file-line-numbers to-file-line-numbers @@
         my @chunks = map {
             /^ \@\@\s+ -\d+,\d+\s+
                     \+(?<start>\d+)
@@ -212,8 +215,10 @@ sub run {
             foreach my $chunk (@chunks) {
                 my ( $min, $max ) = @$chunk;
                 if ( $+{line_number} >= $min && $+{line_number} <= $max ) {
-                    push @failures => "$file: $critique"
-                      unless $reported{$critique}++;
+                    unless ($reported{$critique}) {
+                        push @failures => "$file: $this_critique"
+                    }
+                    $reported{$critique}++;
                     next CRITIQUE;
                 }
             }
