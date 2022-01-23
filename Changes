@@ -2,6 +2,8 @@ Revision history for Git-Critic
 
 {{$NEXT}}
 
+0.4       2022-01-23 11:56:48 CET
+
           - Bugfix: use `git show $target:$file` to get file contents to write to a
             temp file.
 
