@@ -107,6 +107,7 @@ sub _run {
 
     # XXX yeah, this needs to be more robust
     chomp( my $result = capture_stdout { system(@command) } );
+    warn $result;
     return $result;
 }
 
