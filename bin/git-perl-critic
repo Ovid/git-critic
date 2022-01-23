@@ -56,8 +56,8 @@ pod2usage( -verbose => 2 ) if ( $opt_for{man} );
 our $VERSION = '0.3';
 use Git::Critic;
 my $critic = Git::Critic->new(
-    primary_branch => $primary,
-    current_branch => $opt_for{critique},
+    primary_target => $primary,
+    current_target => $opt_for{critique},
     max_file_size  => $opt_for{max_file_size},
     verbose        => $opt_for{verbose},
     severity       => $opt_for{severity},
@@ -124,6 +124,14 @@ To be fully verbose:
 
     git-perl-critic --critique my-spike-branch --against my-development-branch
    
+If you prefer, you can target particular commits:
+
+    git-perl-critic --critique 747ba0e --against 15616b5
+
+Or mix them:
+
+    git-perl-critic --critique 747ba0e --against main
+
 If you're on an entirely unrelated branch, you can specify the branch you want
 to use as your primary branch and the branch you want to critique:
 
