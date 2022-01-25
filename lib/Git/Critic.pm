@@ -45,6 +45,12 @@ has severity => (
     default => 5,
 );
 
+has profile => (
+    is      => 'ro',
+    isa     => Str,
+    default => '',
+);
+
 has verbose => (
     is      => 'ro',
     isa     => Bool,
@@ -195,9 +201,12 @@ sub run {
         print $fh $file_text;
         close $fh;
         my $severity = $self->severity;
+        my $profile = $self->profile;
+        my @arguments = ("--severity=$severity");
+        push @arguments, "--profile=$profile" if $profile;
+        push @arguments, $filename;
         my $critique =
-          $self->_run_without_die( 'perlcritic', "--severity=$severity",
-            $filename );
+          $self->_run_without_die( 'perlcritic', @arguments );
         next FILE unless $critique; # should never happen unless perlcritic dies
         my @critiques = split /\n/, $critique;
 
@@ -320,6 +329,12 @@ default severity level is "gentle" (5).
     -severity => 'harsh'                      -severity => 3
     -severity => 'cruel'                      -severity => 2
     -severity => 'brutal'                     -severity => 1
+
+=head2 C<profile>
+
+Optional.
+
+This is a filepath to a C<Perl::Critic> configuration file.
 
 =head2 C<verbose>
 
