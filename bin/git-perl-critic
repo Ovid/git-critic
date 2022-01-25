@@ -55,7 +55,7 @@ $opt_for{verbose}  ||= 0;
 pod2usage( -verbose => 1 ) if ( $opt_for{help} );
 pod2usage( -verbose => 2 ) if ( $opt_for{man} );
 
-our $VERSION = '0.5';
+our $VERSION = '0.6';
 use Git::Critic;
 my $critic = Git::Critic->new(
     primary_target => $primary,
