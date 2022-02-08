@@ -1,6 +1,8 @@
 Revision history for Git-Critic
 
-{{$NEXT}}
+{{$NEXT}} 2022-02-08 13:57:29 UTC
+
+          - Bugfix: initialised `%reported` hash once per file to avoid suppressing multiple errors
 
 0.4       2022-01-23 11:56:48 CET
 
