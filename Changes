@@ -1,6 +1,8 @@
 Revision history for Git-Critic
 
-{{$NEXT}}
+{{$NEXT}} 2022-02-08 13:59:00 UTC
+
+          - Use triple-dot git diff command to see only changes on the target branch
 
 0.4       2022-01-23 11:56:48 CET
 
