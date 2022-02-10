@@ -2,6 +2,8 @@ Revision history for Git-Critic
 
 {{$NEXT}}
 
+0.5       2022-02-10 09:51:01 CET
+
           - Bugfix: initialised `%reported` hash once per file to avoid
             suppressing multiple errors (https://github.com/JohnathanSwan)
           - Added support for Perl::Critic configuration profiles.
