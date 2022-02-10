@@ -139,7 +139,7 @@ sub _get_modified_perl_files {
     my $current_target = $self->current_target;
     my @files          = uniq sort grep { /\S/ && $self->_is_perl($_) }
       split /\n/ => $self->_run( 'git', 'diff', '--name-only',
-        "$primary_target..$current_target" );
+        "$primary_target...$current_target" );
     return @files;
 }
 
@@ -150,7 +150,7 @@ sub _get_diff {
     my $current_target = $self->current_target;
     my @diff =
       split /\n/ =>
-      $self->_run( 'git', 'diff', "$primary_target..$current_target", $file );
+      $self->_run( 'git', 'diff', "$primary_target...$current_target", $file );
     return @diff;
 }
 
