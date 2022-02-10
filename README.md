@@ -4,7 +4,7 @@ git-perl-critic - Command-line interface for Perl Git::Critic module
 
 # VERSION
 
-version 0.4
+version 0.5
 
 # SYNOPSIS
 
