@@ -1,12 +1,13 @@
 Revision history for Git-Critic
 
-{{$NEXT}} 2022-02-08 13:59:00 UTC
+{{$NEXT}}
 
-          - Use triple-dot git diff command to see only changes on the target branch
-
-0.6       2022-01-25 16:36:24
-
+          - Bugfix: initialised `%reported` hash once per file to avoid
+            suppressing multiple errors (https://github.com/JohnathanSwan)
           - Added support for Perl::Critic configuration profiles.
+            (https://github.com/n7st(
+          - Use triple-dot git diff command to see only changes on the target
+            branch (https://github.com/JohnathanSwan)
 
 0.4       2022-01-23 11:56:48 CET
 

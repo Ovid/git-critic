@@ -184,9 +184,10 @@ sub run {
     # figure out the start and end of every change you've made. Any perlcritic
     # failures which are *not* on those lines are ignored
     my @files = $self->_get_modified_perl_files;
-    my %reported;
     my @failures;
   FILE: foreach my $file (@files) {
+        my %reported;
+
         my $file_text = $self->_run( 'git', 'show', "${current_target}:$file" )
           or next FILE;
         if ( $self->max_file_size ) {
