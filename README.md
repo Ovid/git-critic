@@ -134,6 +134,7 @@ Option           Argument type   Description
 --critique,-c    Str             Git branch to critique (default is current branch)
 --severity,s     Str|Int         Perl::Critic severity level
 --max_file_size  Bytes           Maximum file size in bytes to check
+--profile        Filename        Optional Perl::Critic configuration file
 ```
 
 Debugging options:
