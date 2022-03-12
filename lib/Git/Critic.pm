@@ -4,6 +4,9 @@ package Git::Critic;
 use v5.10.0;
 use strict;
 use warnings;
+# we don't use this directly, but it's an attempt to fix this issue:
+# IPC::System::Simple required for Fatalised/autodying system() at .../lib/Git/Critic.pm line 7.
+use IPC::System::Simple;
 use autodie ":all";
 
 use Capture::Tiny 'capture_stdout';
