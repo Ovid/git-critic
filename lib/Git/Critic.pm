@@ -11,8 +11,11 @@ use autodie ":all";
 
 use Capture::Tiny 'capture_stdout';
 use Carp;
-use File::Basename 'basename';
-use File::Temp 'tempfile';
+use Data::Printer;
+use File::Basename 'dirname';
+use File::Spec::Functions 'catfile';
+use File::Temp 'tempfile', 'tempdir';
+use File::Path 'make_path';
 use List::Util 1.44 qw(uniq);
 use Moo;
 use Types::Standard qw( ArrayRef Bool Int Str);
@@ -200,9 +203,8 @@ sub run {
               unless length($file_text) <= $self->max_file_size;    # large files are very slow
         }
 
-        my ($fh, $filename) = tempfile();
-        print $fh $file_text;
-        close $fh;
+        my $filename = $self->_write_temp_file($file, $file_text);
+
         my $severity = $self->severity;
         my $profile = $self->profile;
         my @arguments = ("--severity=$severity");
@@ -249,6 +251,22 @@ sub run {
         }
     }
     return @failures;
+}
+
+sub _write_temp_file {
+    my ($self, $file, $file_text) = @_;
+
+    my ($dirname) = tempdir( CLEANUP => 0);
+    my $dest_file = catfile($dirname, $file);
+    my $dest_dir = dirname($dest_file);
+
+    make_path($dest_dir);
+
+    open my $fh, '>', $dest_file;
+    print $fh $file_text;
+    close $fh;
+
+    return $dest_file;
 }
 
 # a heuristic to determine if the file in question is Perl. We might allow
